@@ -26,21 +26,84 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
-public class Main
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class Main extends Application
 {
-	public static final void main(String[] args) throws IOException
+    
+    @Override
+    public void start(Stage primaryStage)
+    {
+        primaryStage.setTitle("Binary Search Tree");
+        
+        Label nbThreadMsg = new Label("Nombre de Threads");
+        
+        TextField nbThread = new TextField();
+        
+        Label nbNoeudsMsg = new Label("Nombre de Noeuds");
+        
+        TextField nbNoeuds = new TextField();
+        
+        Button btn = new Button("Go");
+        
+        btn.setOnAction(new EventHandler<ActionEvent>()
+        {
+            @Override
+            public void handle(ActionEvent event)
+            {
+                System.out.println("Clic");
+            }
+        });
+        VBox root = new VBox();
+        root.getChildren().add(nbThreadMsg);
+        root.getChildren().add(nbThread);
+        root.getChildren().add(nbNoeudsMsg);
+        root.getChildren().add(nbNoeuds);
+        root.getChildren().add(btn);
+        primaryStage.setScene(new Scene(root, 800, 600));
+        primaryStage.show();
+    }
+    
+	public static final void main(String[] args) throws IOException, InterruptedException
 	{
+        launch(args);
+		int i;
 	    String name = "rbtree";
-	    BinarySearchTree<Integer> rbtree = new BinarySearchTree<>();
+	    
+	    ArrayList<Thread> threads = new ArrayList<>();
+	    
+		Runnable runnable = new BinarySearchTree<>(5, 10);
+		
+		for(i=0; i<((BinarySearchTree<?>)runnable).getNbThread(); i++)
+		{
+			threads.add(i, new Thread(runnable));
+			threads.get(i).start();
+		}
+		for(i=0; i<((BinarySearchTree<?>)runnable).getNbThread(); i++)
+		{
+			threads.get(i).join();
+		}
+	    /*
+		BinarySearchTree<Integer> rbtree = new BinarySearchTree<>();
 	    rbtree.add(10);
 	    rbtree.add(15);
 	    rbtree.add(8);
 	    rbtree.add(12);
 	    rbtree.add(4);
 	    rbtree.add(9);
+	    */
 	    PrintWriter writer = new PrintWriter(name + ".dot");
-	    writer.println(rbtree.toDOT(name));
+	    writer.println(((BinarySearchTree<?>)runnable).toDOT(name));
 	    writer.close();
 	    ProcessBuilder builder = new ProcessBuilder("dot",
 	    		"-Tpdf", "-o", name + ".pdf", name + ".dot");

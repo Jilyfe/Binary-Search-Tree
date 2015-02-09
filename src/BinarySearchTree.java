@@ -25,6 +25,7 @@
  */
 
 import java.util.ArrayDeque;
+import java.util.Random;
 
 /**
  * Implement a Binary Search Tree (BST) data structure. It is not thread-safe
@@ -32,9 +33,30 @@ import java.util.ArrayDeque;
  * @author Frédéric Fauberteau
  *
  */
-public class BinarySearchTree<E extends Comparable<E>>
+public class BinarySearchTree<E extends Comparable<E>> implements Runnable
 {
 	private BinarySearchNode<E> root;
+	private int nbThread;
+	private int nbNode;
+	
+	BinarySearchTree(int nbThread, int nbNode)
+	{
+		this.nbNode = nbNode;
+		this.nbThread = nbThread;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void run()
+	{
+		int i, nbNode;
+		Random rand = new Random();
+		nbNode = this.nbNode;
+		for(i=0; i<nbNode/nbThread; i++)
+		{
+			while(this.add((E)(Comparable)(rand.nextInt(nbNode) + 1)) == false) ;
+		}
+	}
   
 	/**
 	* Add an element in the tree if it is not already present.
@@ -44,7 +66,7 @@ public class BinarySearchTree<E extends Comparable<E>>
 	* @return true if the element has been correctly added and false if it is
 	*         already present
 	*/
-	public boolean add(E e)
+	public synchronized boolean add(E e)
 	{
 		BinarySearchNode<E> y = null;
 		BinarySearchNode<E> x = getRoot();
@@ -95,6 +117,11 @@ public class BinarySearchTree<E extends Comparable<E>>
 	private void setRoot(BinarySearchNode<E> node)
 	{
 		root = node;
+	}
+
+	public int getNbThread()
+	{
+		return nbThread;
 	}
   
 	public String toDOT(String name)
