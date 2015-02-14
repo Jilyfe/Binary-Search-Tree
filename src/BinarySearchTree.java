@@ -35,7 +35,7 @@ import java.util.Random;
  */
 public class BinarySearchTree<E extends Comparable<E>> implements Runnable
 {
-	private BinarySearchNode<E> root;
+	private BinarySearchNode<E> root = null;
 	private int nbThread;
 	private int nbNode;
 	
@@ -54,7 +54,7 @@ public class BinarySearchTree<E extends Comparable<E>> implements Runnable
 		nbNode = this.nbNode;
 		for(i=0; i<nbNode/nbThread; i++)
 		{
-			while(this.add((E)(Comparable)(rand.nextInt(nbNode) + 1)) == false) ;
+			while(this.add((E)(Comparable)(rand.nextInt(nbNode) + 1)) == false);
 		}
 	}
   
@@ -65,60 +65,71 @@ public class BinarySearchTree<E extends Comparable<E>> implements Runnable
 	*          the element to add in the tree
 	* @return true if the element has been correctly added and false if it is
 	*         already present
+	 * @throws InterruptedException 
 	*/
-	public synchronized boolean add(E e)
+	public boolean add(E e)
 	{
-		BinarySearchNode<E> y = null;
-		BinarySearchNode<E> x = getRoot();
-		while (x != null)
+		if(isRootSet(e) == false)
 		{
-			y = x;
-			if (x.getKey().compareTo(e) == 0)
+			BinarySearchNode<E> y = null;
+			BinarySearchNode<E> x = getRoot();
+			while (x != null)
 			{
-				return false;
-			}
-			else if(x.getKey().compareTo(e) > 0)
-			{
-				x = x.getRightChild();
-			}
-			else
-			{
-				x = x.getLeftChild();
-			}
-		}
-		BinarySearchNode<E> z = new BinarySearchNode<>(e);
-		if(y == null)
-		{
-			setRoot(z);
-		}
-		else
-		{
-			if(y.getKey().compareTo(e) == 0)
-			{
-				return false;
-			}
-			else if(y.getKey().compareTo(e) > 0)
-			{
-				y.setRightChild(z);
-			}
-			else
-			{
-				y.setLeftChild(z);
+				try
+				{
+					x.lock();
+				}
+				catch(InterruptedException exception)
+				{
+					exception.printStackTrace();
+				}
+				finally
+				{
+					y = x;
+					if (x.getKey().compareTo(e) == 0)
+					{
+						y.unlock();
+						return false;
+					}
+					else if(x.getKey().compareTo(e) > 0)
+					{
+						x = x.getRightChild();
+						if(x == null)
+						{
+							y.setRightChild(new BinarySearchNode<>(e));
+						}
+						y.unlock();
+					}
+					else
+					{
+						x = x.getLeftChild();
+						if(x == null)
+						{
+							y.setLeftChild(new BinarySearchNode<>(e));
+						}
+						y.unlock();
+					}
+				}
 			}
 		}
 		return true;
 	}
-  
+	
+	private synchronized boolean isRootSet(E e)
+	{
+		if(root == null)
+		{
+			root = new BinarySearchNode<>(e);
+			return true;
+		}
+		return false;
+	}
+
 	private BinarySearchNode<E> getRoot()
 	{
 		return root;
 	}
   
-	private void setRoot(BinarySearchNode<E> node)
-	{
-		root = node;
-	}
-
 	public int getNbThread()
 	{
 		return nbThread;
@@ -161,10 +172,23 @@ public class BinarySearchTree<E extends Comparable<E>> implements Runnable
 		private BinarySearchNode<E> left;
     
 		private BinarySearchNode<E> right;
-    
+		
+		Lock locky;
+		
 		private BinarySearchNode(E key)
 		{
 			this.key = key;
+			locky = new Lock();
+		}
+
+		private void lock() throws InterruptedException
+		{
+			locky.lock();
+		}
+
+		private void unlock()
+		{
+			locky.unlock();
 		}
     
 		private E getKey()

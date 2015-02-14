@@ -76,7 +76,7 @@ public class Main extends Application
     
 	public static final void main(String[] args) throws IOException, InterruptedException
 	{
-        launch(args);
+        //launch(args);
 		int i;
 	    String name = "rbtree";
 	    
@@ -108,5 +108,6 @@ public class Main extends Application
 	    ProcessBuilder builder = new ProcessBuilder("dot",
 	    		"-Tpdf", "-o", name + ".pdf", name + ".dot");
 	    builder.start();
+	    System.exit(0);
 	}
 }
