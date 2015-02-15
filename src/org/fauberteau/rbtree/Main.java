@@ -1,4 +1,4 @@
-/* Copyright (c) 2015, Frédéric Fauberteau
+/* Copyright (c) 2015, FrÃ©dÃ©ric Fauberteau
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,27 +23,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.fauberteau.rbtree;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.concurrent.ExecutionException;
+import javafx.application.Application;
 
-public class Main
-{
-	public static final void main(String[] args) throws IOException
-	{
-	    String name = "rbtree";
-	    BinarySearchTree<Integer> rbtree = new BinarySearchTree<>();
-	    rbtree.add(10);
-	    rbtree.add(15);
-	    rbtree.add(8);
-	    rbtree.add(12);
-	    rbtree.add(4);
-	    rbtree.add(9);
-	    PrintWriter writer = new PrintWriter(name + ".dot");
-	    writer.println(rbtree.toDOT(name));
-	    writer.close();
-	    ProcessBuilder builder = new ProcessBuilder("dot",
-	    		"-Tpdf", "-o", name + ".pdf", name + ".dot");
-	    builder.start();
-	}
+import org.rostan.view.MainGUI;
+
+public class Main {
+
+    public static final void main(String[] args) throws IOException, ExecutionException {
+        
+        Application.launch(MainGUI.class, args);
+
+    }
+
 }
